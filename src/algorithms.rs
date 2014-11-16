@@ -1,3 +1,15 @@
+//! Various algorithms written in Rust.
+//!
+//! # Sorting algorithms
+//!
+//! Algorithm | Best case | Average case | Worst case | Space complexity
+//! :-------- | :-------: | :----------: | :--------: | :-------------:
+//! Selection sort | O(n^2) | O(n^2) | O(n^2) | O(n) total, O(1) aux.
+//! Insertion sort | O(n) comparisons, O(1) swaps | O(n^2) comparisons, swaps | O(n^2) comparisons, swaps | O(n) total, O(1) aux.
+//!
+
+#![doc(html_root_url="https://kaisellgren.github.io/doc")]
+
 use std::num::Bounded;
 
 pub fn insertion_sort<'a, T: Ord + 'a>(data: &'a mut [T]) {
