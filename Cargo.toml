@@ -3,3 +3,8 @@
 name = "algorithms"
 version = "0.0.1"
 authors = ["Kai Sellgren <kaisellgren@gmail.com>"]
+
+[lib]
+
+name = "algorithms"
+path = "src/algorithms.rs"
