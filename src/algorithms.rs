@@ -11,6 +11,7 @@ pub fn insertion_sort<'a, T: Ord + 'a>(data: &'a mut [T]) {
             x2 -= 1;
         }
     }
+}
 
 pub fn selection_sort<'a, T: Ord + Bounded + 'a>(data: &'a mut [T]) {
     let size = data.len();
@@ -29,4 +30,46 @@ pub fn selection_sort<'a, T: Ord + Bounded + 'a>(data: &'a mut [T]) {
         current_min = None;
     }
 }
+
+pub fn merge_sort<T: Ord + Clone>(data: &[T]) -> Vec<T> {
+    struct Slice(uint, uint);
+
+    fn merge_sort_internal<T: Ord + Clone>(data: &[T], slice: Slice) -> Vec<T> {
+        let Slice(begin, end) = slice;
+        let data_size = end - begin;
+
+        if data_size == 0 { return Vec::new() }
+        if data_size == 1 { return vec![data[begin].clone()] }
+
+        let middle = data_size / 2 + begin;
+        let left = Slice(begin, middle);
+        let right = Slice(middle, end);
+
+        merge(merge_sort_internal(data, left), merge_sort_internal(data, right))
+    }
+
+    fn merge<T: Ord + Clone>(left: Vec<T>, right: Vec<T>) -> Vec<T> {
+        let mut left_index = 0;
+        let mut right_index = 0;
+        let left_size = left.len();
+        let right_size = right.len();
+        let mut result = Vec::with_capacity(left_size + right_size);
+
+        while left_index < left_size && right_index < right_size {
+            if left[left_index] < right[right_index] {
+                result.push(left[left_index].clone());
+                left_index += 1;
+            } else {
+                result.push(right[right_index].clone());
+                right_index += 1;
+            }
+        }
+
+        result.push_all(left.slice_from(left_index));
+        result.push_all(right.slice_from(right_index));
+
+        result
+    }
+
+    merge_sort_internal(data, Slice(0u, data.len()))
 }
