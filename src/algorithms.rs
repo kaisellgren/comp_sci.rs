@@ -6,12 +6,22 @@
 //! :-------- | :-------: | :----------: | :--------: | :-------------:
 //! Selection sort | O(n^2) | O(n^2) | O(n^2) | O(n) total, O(1) aux.
 //! Insertion sort | O(n) comparisons, O(1) swaps | O(n^2) comparisons, swaps | O(n^2) comparisons, swaps | O(n) total, O(1) aux.
+//! Merge sort | O(n log n) | O(n log n) | O(n log n) | O(n^2) total, O(n) aux.
+//! Quick sort | O(n log n) | O(n log n) | O(n^2) | O(n log n) total, O(log n) aux.
 //!
 
 #![doc(html_root_url="https://kaisellgren.github.io/doc")]
 
 use std::num::Bounded;
 
+/// Efficient sorting against small or already sorted sets.
+///
+/// Insertion sort is inefficient against large sets. It requires no additional memory and is stable.
+///
+/// It is efficient against already substantially sorted sets (`O(nk)` when each element is no more
+/// than `k` places away from its sorted position).
+///
+/// Insertion sort can also sort sets as it receives them.
 pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
     let size = data.len();
     if size < 2 { return; }
@@ -25,6 +35,11 @@ pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
     }
 }
 
+/// Efficient sorting against small sets.
+///
+/// Selection sort is inefficient against large sets. It requires no additional memory.
+///
+/// The write performance of `O(n)` is better than that of e.g. insertion sort's `O(n^2)`.
 pub fn selection_sort<'a, A: Ord + Bounded + 'a>(data: &'a mut [A]) {
     let size = data.len();
     if size < 2 { return; }
@@ -44,6 +59,10 @@ pub fn selection_sort<'a, A: Ord + Bounded + 'a>(data: &'a mut [A]) {
 }
 
     struct Slice(uint, uint);
+/// Efficient sorting against large sets. Requires `O(n)` aux. space.
+///
+/// This divide-and-conquer sorting algorithm, while inefficient with memory use, performs
+/// `O(n log n)` in average, worst and best case scenarios even against large sets of data.
 pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
 
     fn divide<A: Ord + Clone>(data: &[A], slice: Slice) -> Vec<A> {
