@@ -12,7 +12,7 @@
 
 use std::num::Bounded;
 
-pub fn insertion_sort<'a, T: Ord + 'a>(data: &'a mut [T]) {
+pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
     let size = data.len();
     if size < 2 { return; }
 
@@ -25,12 +25,12 @@ pub fn insertion_sort<'a, T: Ord + 'a>(data: &'a mut [T]) {
     }
 }
 
-pub fn selection_sort<'a, T: Ord + Bounded + 'a>(data: &'a mut [T]) {
+pub fn selection_sort<'a, A: Ord + Bounded + 'a>(data: &'a mut [A]) {
     let size = data.len();
     if size < 2 { return; }
 
     let mut current_min: Option<uint> = None;
-    let ref max: T = Bounded::max_value();
+    let ref max: A = Bounded::max_value();
 
     for x in range(0, size) {
         for x2 in range(x, size) {
@@ -43,10 +43,10 @@ pub fn selection_sort<'a, T: Ord + Bounded + 'a>(data: &'a mut [T]) {
     }
 }
 
-pub fn merge_sort<T: Ord + Clone>(data: &[T]) -> Vec<T> {
     struct Slice(uint, uint);
+pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
 
-    fn merge_sort_internal<T: Ord + Clone>(data: &[T], slice: Slice) -> Vec<T> {
+    fn divide<A: Ord + Clone>(data: &[A], slice: Slice) -> Vec<A> {
         let Slice(begin, end) = slice;
         let data_size = end - begin;
 
@@ -60,7 +60,7 @@ pub fn merge_sort<T: Ord + Clone>(data: &[T]) -> Vec<T> {
         merge(merge_sort_internal(data, left), merge_sort_internal(data, right))
     }
 
-    fn merge<T: Ord + Clone>(left: Vec<T>, right: Vec<T>) -> Vec<T> {
+    fn conquer<A: Ord + Clone>(left: Vec<A>, right: Vec<A>) -> Vec<A> {
         let mut left_index = 0;
         let mut right_index = 0;
         let left_size = left.len();
