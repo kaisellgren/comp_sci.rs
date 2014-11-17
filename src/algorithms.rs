@@ -58,32 +58,29 @@ pub fn selection_sort<'a, A: Ord + Bounded + 'a>(data: &'a mut [A]) {
     }
 }
 
-    struct Slice(uint, uint);
 /// Efficient sorting against large sets. Requires `O(n)` aux. space.
 ///
 /// This divide-and-conquer sorting algorithm, while inefficient with memory use, performs
 /// `O(n log n)` in average, worst and best case scenarios even against large sets of data.
 pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
-
-    fn divide<A: Ord + Clone>(data: &[A], slice: Slice) -> Vec<A> {
-        let Slice(begin, end) = slice;
-        let data_size = end - begin;
-
-        if data_size == 0 { return Vec::new() }
-        if data_size == 1 { return vec![data[begin].clone()] }
-
-        let middle = data_size / 2 + begin;
-        let left = Slice(begin, middle);
-        let right = Slice(middle, end);
-
-        merge(merge_sort_internal(data, left), merge_sort_internal(data, right))
+    fn divide<A: Ord + Clone>(data: &[A]) -> Vec<A> {
+        match data.len() {
+            0 => vec![],
+            1 => vec![data[0].clone()],
+            size => {
+                let middle = size / 2;
+                conquer(divide(data.slice_to(middle)), divide(data.slice_from(middle)))
+            }
+        }
     }
 
     fn conquer<A: Ord + Clone>(left: Vec<A>, right: Vec<A>) -> Vec<A> {
         let mut left_index = 0;
         let mut right_index = 0;
+
         let left_size = left.len();
         let right_size = right.len();
+
         let mut result = Vec::with_capacity(left_size + right_size);
 
         while left_index < left_size && right_index < right_size {
@@ -102,7 +99,7 @@ pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
         result
     }
 
-    merge_sort_internal(data, Slice(0u, data.len()))
+    divide(data)
 }
 
 /// Efficient sorting against large sets.
