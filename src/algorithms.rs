@@ -23,14 +23,16 @@ use std::num::Bounded;
 ///
 /// Insertion sort can also sort sets as it receives them.
 pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
-    let size = data.len();
-    if size < 2 { return; }
-
-    for x in range(1, size) {
-        let mut x2 = x;
-        while x2 > 0 && &data[x2 - 1] > &data[x2] {
-            data.swap(x2, x2 - 1);
-            x2 -= 1;
+    match data.len() {
+        0 | 1 => (),
+        size => {
+            for i in range(1, size) {
+                let mut x = i;
+                while x > 0 && &data[x - 1] > &data[x] {
+                    data.swap(x, x - 1);
+                    x -= 1;
+                }
+            }
         }
     }
 }
