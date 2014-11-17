@@ -43,20 +43,18 @@ pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
 ///
 /// The write performance of `O(n)` is better than that of e.g. insertion sort's `O(n^2)`.
 pub fn selection_sort<'a, A: Ord + Bounded + 'a>(data: &'a mut [A]) {
-    let size = data.len();
-    if size < 2 { return; }
+    let (mut i, size) = (0, data.len());
 
-    let mut current_min: Option<uint> = None;
-    let ref max: A = Bounded::max_value();
-
-    for x in range(0, size) {
-        for x2 in range(x, size) {
-            if &data[x2] < current_min.map_or(max, |current| &data[current]) {
-                current_min = Some(x);
-                data.swap(x, x2);
+    while i < size {
+        let (mut x, mut current_min) = (i + 1, i);
+        while x < size {
+            if data[x] < data[current_min] {
+                current_min = x;
             }
+            x += 1;
         }
-        current_min = None;
+        data.swap(i, current_min);
+        i += 1;
     }
 }
 
