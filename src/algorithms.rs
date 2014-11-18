@@ -12,7 +12,12 @@
 
 #![doc(html_root_url="https://kaisellgren.github.io/doc")]
 
+extern crate rand;
+extern crate test;
+
 use std::num::Bounded;
+
+mod tests;
 
 /// Efficient sorting against small or already sorted sets.
 ///
