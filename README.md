@@ -1,5 +1,5 @@
-# algorithms
+# Computer science with Rust
 
-Various algorithms written in Rust.
+See the wiki articles here: https://github.com/kaisellgren/comp_sci.rs/wiki
 
-See API documentation: [http://kaisellgren.github.io/doc/algorithms](http://kaisellgren.github.io/doc/algorithms)
+See the API documentation here: [http://kaisellgren.github.io/doc/algorithms](http://kaisellgren.github.io/doc/algorithms)
