@@ -11,13 +11,57 @@
 //!
 
 #![doc(html_root_url="https://kaisellgren.github.io/doc")]
+#![feature(associated_types)]
 
 extern crate rand;
 extern crate test;
+extern crate core;
+extern crate alloc;
+extern crate serialize;
 
-use std::num::Bounded;
-
+mod data_structures;
 mod tests;
+
+/// Removes duplicate entries from Vec with a complexity of O(n log n + n) I believe (TODO).
+///
+/// This technique sorts the vector before removing the duplicates and thus is not stable.
+pub fn remove_duplicates_by_sorting<'a, A: PartialEq + Ord>(data: &'a mut Vec<A>) {
+    quick_sort(data.as_mut_slice());
+
+    let mut current_index = 0;
+
+    while current_index < data.len() - 1 {
+        if &data[current_index] == &data[current_index + 1] {
+            data.remove(current_index + 1);
+            continue;
+        }
+
+        current_index += 1;
+    }
+}
+
+/// Removes duplicate entries from Vec with a complexity of O(n(n+1)/2).
+///
+/// It is based on the dual pointer technique where ´current´ iterates as usual,
+/// but ´runner´ iterates until it hits the ´current´, and then ´current´ proceeds.
+pub fn remove_duplicates_with_dual_pointers<'a, A: PartialEq>(data: &'a mut Vec<A>) {
+    let mut current_index = 0;
+
+    while current_index < data.len() {
+        let mut runner_index = 0;
+        while runner_index < current_index {
+            if &data[runner_index] == &data[current_index] {
+                data.remove(current_index);
+                current_index -= 1;
+                break;
+            }
+
+            runner_index += 1;
+        }
+
+        current_index += 1;
+    }
+}
 
 /// Efficient sorting against small or already sorted sets.
 ///
@@ -47,7 +91,7 @@ pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
 /// Selection sort is inefficient against large sets. It requires no additional memory.
 ///
 /// The write performance of `O(n)` is better than that of e.g. insertion sort's `O(n^2)`.
-pub fn selection_sort<'a, A: Ord + Bounded + 'a>(data: &'a mut [A]) {
+pub fn selection_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
     let (mut i, size) = (0, data.len());
 
     while i < size {

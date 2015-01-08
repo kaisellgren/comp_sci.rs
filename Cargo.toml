@@ -7,4 +7,4 @@ authors = ["Kai Sellgren <kaisellgren@gmail.com>"]
 [lib]
 
 name = "algorithms"
-path = "src/algorithms.rs"
+path = "src/lib.rs"
