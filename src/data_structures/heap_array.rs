@@ -57,7 +57,7 @@ impl<A> HeapArray<A> {
     pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [A] {
         unsafe {
             mem::transmute(RawSlice {
-                data: *self.pointer as *const A,
+                data: *self.pointer,
                 len: self.capacity,
             })
         }
@@ -91,7 +91,7 @@ impl<A> AsSlice<A> for HeapArray<A> {
     fn as_slice<'a>(&'a self) -> &'a [A] {
         unsafe {
             mem::transmute(RawSlice {
-                data: *self.pointer as *const A,
+                data: *self.pointer,
                 len: self.capacity,
             })
         }

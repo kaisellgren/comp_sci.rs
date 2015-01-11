@@ -51,14 +51,12 @@ impl<A> ArrayList<A> {
 
         self.ensure_enough_capacity();
 
-        self.length += 1;
-        let previous_length = self.length - 1;
-        for i in range(index, previous_length) {
-            self.elements.swap(previous_length - i, previous_length - i - 1);
+        for i in range(index, self.length) {
+            self.elements.swap(self.length - i, self.length - i - 1);
         }
 
-
         self.elements[index] = element;
+        self.length += 1;
     }
 
     pub fn remove_at(&mut self, index: usize) {
@@ -81,7 +79,7 @@ impl<A> ArrayList<A> {
     pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [A] {
         unsafe {
             mem::transmute(RawSlice {
-                data: &self.elements[0] as *const A,
+                data: &self.elements[0],
                 len: self.length,
             })
         }
@@ -101,7 +99,7 @@ impl<A> AsSlice<A> for ArrayList<A> {
     fn as_slice<'a>(&'a self) -> &'a [A] {
         unsafe {
             mem::transmute(RawSlice {
-                data: &self.elements[0] as *const A,
+                data: &self.elements[0],
                 len: self.length,
             })
         }
@@ -168,11 +166,11 @@ mod tests {
     #[test]
     fn insert_tests() {
         let mut a = ArrayList::with_capacity(5);
-println!("1");
+
         a.insert(0, 5u8);
 
         assert_eq!(5u8, a[0]);
-println!("2");
+
         a.insert(0, 15u8);
 
         assert_eq!(15u8, a[0]);
@@ -181,12 +179,12 @@ println!("2");
 
         assert_eq!(5us, a.capacity());
         assert_eq!(2us, a.length());
-println!("3");
+
         a.insert(2, 1u8);
 
         assert_eq!(5us, a.capacity());
         assert_eq!(3us, a.length());
-println!("4");
+
         a.insert(3, 2u8);
 
         assert_eq!([15u8, 5u8, 1u8, 2u8], a.as_slice());
