@@ -2,8 +2,10 @@ use core::nonzero::NonZero;
 use core::raw::Slice as RawSlice;
 use alloc::heap::EMPTY;
 use alloc::heap::allocate;
-use std::uint;
+use std::usize;
+use std::ptr::copy_nonoverlapping_memory;
 use std::mem;
+use std::ptr;
 use std::num::Int;
 use std::ops::{Index, IndexMut};
 
@@ -12,12 +14,12 @@ use std::ops::{Index, IndexMut};
 /// It has a complexity of O(1) for indexing.
 pub struct HeapArray<A> {
     pointer: NonZero<*mut A>,
-    capacity: uint,
+    capacity: usize,
 }
 
 impl<A> HeapArray<A> {
     #[inline]
-    pub fn with_capacity(capacity: uint) -> HeapArray<A> {
+    pub fn with_capacity(capacity: usize) -> HeapArray<A> {
         let a_size = mem::size_of::<A>();
 
         if a_size == 0 {
@@ -25,7 +27,7 @@ impl<A> HeapArray<A> {
                 pointer: unsafe {
                     NonZero::new(EMPTY as *mut A)
                 },
-                capacity: uint::MAX, // Empty sized A's yield infinite capacity.
+                capacity: usize::MAX, // Empty sized A's yield infinite capacity.
             }
         } else if capacity == 0 {
             HeapArray {
@@ -61,7 +63,7 @@ impl<A> HeapArray<A> {
         }
     }
 
-    pub fn capacity(&self) -> uint {
+    pub fn capacity(&self) -> usize {
         self.capacity
     }
 }
@@ -78,20 +80,20 @@ impl<A> AsSlice<A> for HeapArray<A> {
     }
 }
 
-impl<A> Index<uint> for HeapArray<A> {
+impl<A> Index<usize> for HeapArray<A> {
     type Output = A;
 
     #[inline]
-    fn index<'a>(&'a self, index: &uint) -> &'a A {
+    fn index<'a>(&'a self, index: &usize) -> &'a A {
         &self.as_slice()[*index]
     }
 }
 
-impl<A> IndexMut<uint> for HeapArray<A> {
+impl<A> IndexMut<usize> for HeapArray<A> {
     type Output = A;
 
     #[inline]
-    fn index_mut<'a>(&'a mut self, index: &uint) -> &'a mut A {
+    fn index_mut<'a>(&'a mut self, index: &usize) -> &'a mut A {
         &mut self.as_mut_slice()[*index]
     }
 }

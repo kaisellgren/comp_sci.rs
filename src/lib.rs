@@ -11,7 +11,9 @@
 //!
 
 #![doc(html_root_url="https://kaisellgren.github.io/doc")]
-#![feature(associated_types)]
+#![allow(unstable)]
+#![allow(unused_imports)]
+#![allow(dead_code)]
 
 extern crate rand;
 extern crate test;
@@ -173,7 +175,7 @@ pub fn quick_sort<A: Ord>(data: &mut [A]) {
     }
 
     /// Partitioning makes the left values of the pivot to be less, and the right values to be greater.
-    fn partition<A: Ord>(data: &mut [A], pivot: uint) -> uint {
+    fn partition<A: Ord>(data: &mut [A], pivot: usize) -> usize {
         let (mut next_position, mut index) = (0, 0);
         let right_index = data.len() - 1;
 
@@ -193,7 +195,7 @@ pub fn quick_sort<A: Ord>(data: &mut [A]) {
     }
 
     /// Finds the median of left, middle and right.
-    fn find_pivot<A: Ord>(data: &[A]) -> uint {
+    fn find_pivot<A: Ord>(data: &[A]) -> usize {
         let (left, right) = (0, data.len() - 1);
         let middle = left + (right - left) / 2; // Avoid integer overflow vs (left + right) / 2.
 
