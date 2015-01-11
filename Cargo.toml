@@ -1,10 +1,11 @@
 [package]
 
-name = "algorithms"
+name = "comp_sci"
+description = "Computer science with Rust."
 version = "0.0.1"
 authors = ["Kai Sellgren <kaisellgren@gmail.com>"]
 
 [lib]
 
-name = "algorithms"
+name = "comp_sci"
 path = "src/lib.rs"

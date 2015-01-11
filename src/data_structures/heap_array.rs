@@ -11,13 +11,16 @@ use std::ops::{Index, IndexMut};
 
 /// An implementation of a fixed-size mutable array, which is allocated on the heap.
 ///
-/// It has a complexity of O(1) for indexing.
+/// Minimum memory requirement is two pointer sized integers, e.g. 16-bytes on 64-bit system.
 pub struct HeapArray<A> {
     pointer: NonZero<*mut A>,
     capacity: usize,
 }
 
 impl<A> HeapArray<A> {
+    /// Creates a new HeapArray by allocating the given amount of capacity.
+    ///
+    /// There is no way to increase or decrease capacity afterwards.
     #[inline]
     pub fn with_capacity(capacity: usize) -> HeapArray<A> {
         let a_size = mem::size_of::<A>();
@@ -81,6 +84,7 @@ impl<A> HeapArray<A> {
         }
     }
 
+    /// Returns the capacity for this array.
     pub fn capacity(&self) -> usize {
         self.capacity
     }

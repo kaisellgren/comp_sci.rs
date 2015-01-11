@@ -1,14 +1,78 @@
-//! Various algorithms written in Rust.
+//! This project consists of articles, data structures, algorithms and solutions to common problems.
 //!
 //! # Sorting algorithms
 //!
-//! Algorithm | Best case | Average case | Worst case | Space complexity
+//! Algorithm | Best case | Average case | Worst case | Auxiliary space
 //! :-------- | :-------: | :----------: | :--------: | :-------------:
-//! Selection sort | O(n^2) | O(n^2) | O(n^2) | O(n) total, O(1) aux.
-//! Insertion sort | O(n) comparisons, O(1) swaps | O(n^2) comparisons, swaps | O(n^2) comparisons, swaps | O(n) total, O(1) aux.
-//! Merge sort | O(n log n) | O(n log n) | O(n log n) | O(n^2) total, O(n) aux.
-//! Quick sort | O(n log n) | O(n log n) | O(n^2) | O(n log n) total, O(log n) aux.
+//! Selection sort | O(n^2) | O(n^2) | O(n^2) | O(1)
+//! Insertion sort | O(n) | O(n^2) | O(n^2) | O(1)
+//! Merge sort | O(n log n) | O(n log n) | O(n log n) | O(n)
+//! Quick sort | O(n log n) | O(n log n) | O(n^2) | O(log n)
 //!
+//! # Data structures
+//!
+//! Always choose your data structures carefully. Look below for guidance.
+//!
+//! ### Indexing performance
+//!
+//! Indexing is the act of accessing an arbitrary element in the data structure.
+//! This is usually achieved with `[]` in Rust.
+//!
+//! Data structure | Average case | Worst case
+//! :------------: | :----------: | :--------:
+//! HeapArray | O(1) | O(1)
+//! ArrayList | O(1) | O(1)
+//!
+//! ### Search performance
+//!
+//! Searching is the act of finding an arbitrary element within the data structure.
+//! This is usually achieved with a method such as `contains()`, `get()` or similar.
+//!
+//! Data structure | Average case | Worst case
+//! :------------: | :----------: | :--------:
+//! HeapArray | O(n) | O(n)
+//! ArrayList | O(n) | O(n)
+//!
+//! ### Insertion performance
+//!
+//! Insertion is the act of inserting an element at an arbitrary position within the data structure.
+//! This is usually achieved with a method such as `insert()`, and there is sometimes a `push()`
+//! for inserting at the end of the data structure given it makes sense.
+//!
+//! Data structure | Best case | Average case | Worst case
+//! :------------: | :-------: | :----------: | :--------:
+//! HeapArray[1] | N/A | N/A | N/A
+//! ArrayList[2] | O(1) | O(n - index) | O(n)
+//!
+//! [1]: HeapArray is immutable thus this function is not available.
+//!
+//! [2]: ArrayList's insertion performance depends on the index you add an element to.
+//! Adding to the end of the list is `O(1)` while adding to the front is `O(n)`, because all the prior elements would have to be moved forward.
+//!
+//! Further more, if the capacity of the list is exceeded, it will be `O(n)` as the entire list has to be reallocated.
+//!
+//! ### Deletion performance
+//!
+//! Deletion is the act of removing an element from the data structure. This is usually achieved with
+//! a method such as `remove()`.
+//!
+//! Data structure | Best case | Average case | Worst case
+//! :------------: | :-------: | :----------: | :--------:
+//! HeapArray[1] | N/A | N/A | N/A
+//! ArrayList[2] | O(1) | O(n - index) | O(n)
+//!
+//! [1]: HeapArray is immutable thus this function is not available.
+//!
+//! [2]: ArrayList's deletion performance depends on the index you delete an element from. Deleting from the end of the list is `O(1)` while deleting from the front is `O(n)`, because all the prior elements would have to be moved backward.
+//!
+//! ### Space complexity
+//!
+//! Space complexity defines how much memory is necessary to represent the data structure.
+//!
+//! Data structure | Space complexity
+//! :------------: | :----------:
+//! HeapArray | O(n)
+//! ArrayList | O(n)
 
 #![doc(html_root_url="https://kaisellgren.github.io/doc")]
 #![allow(unstable)]
@@ -21,14 +85,22 @@ extern crate core;
 extern crate alloc;
 extern crate serialize;
 
-mod data_structures;
-mod tests;
+pub mod algorithms;
+pub mod data_structures;
+
+fn assert_sorted<T: Ord>(data: &[T]) {
+    let mut index = 1;
+    while index < data.len() {
+        assert!(data[index - 1] <= data[index]);
+        index += 1;
+    }
+}
 
 /// Removes duplicate entries from Vec with a complexity of O(n log n + n) I believe (TODO).
 ///
 /// This technique sorts the vector before removing the duplicates and thus is not stable.
 pub fn remove_duplicates_by_sorting<'a, A: PartialEq + Ord>(data: &'a mut Vec<A>) {
-    quick_sort(data.as_mut_slice());
+    algorithms::quick_sort::quick_sort(data.as_mut_slice());
 
     let mut current_index = 0;
 
@@ -65,146 +137,16 @@ pub fn remove_duplicates_with_dual_pointers<'a, A: PartialEq>(data: &'a mut Vec<
     }
 }
 
-/// Efficient sorting against small or already sorted sets.
-///
-/// Insertion sort is inefficient against large sets. It requires no additional memory and is stable.
-///
-/// It is efficient against already substantially sorted sets (`O(nk)` when each element is no more
-/// than `k` places away from its sorted position).
-///
-/// Insertion sort can also sort sets as it receives them.
-pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
-    match data.len() {
-        0 | 1 => (),
-        size => {
-            for i in range(1, size) {
-                let mut x = i;
-                while x > 0 && &data[x - 1] > &data[x] {
-                    data.swap(x, x - 1);
-                    x -= 1;
-                }
-            }
-        }
-    }
+#[test]
+fn test_remove_duplicates_with_dual_pointers() {
+    let mut v = vec![1u32, 2, 3, 4, 5, 4, 3, 2, 1, 0];
+    remove_duplicates_with_dual_pointers(&mut v);
+    assert_eq!(v, vec![1u32, 2, 3, 4, 5, 0]);
 }
 
-/// Efficient sorting against small sets.
-///
-/// Selection sort is inefficient against large sets. It requires no additional memory.
-///
-/// The write performance of `O(n)` is better than that of e.g. insertion sort's `O(n^2)`.
-pub fn selection_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
-    let (mut i, size) = (0, data.len());
-
-    while i < size {
-        let (mut x, mut current_min) = (i + 1, i);
-        while x < size {
-            if data[x] < data[current_min] {
-                current_min = x;
-            }
-            x += 1;
-        }
-        data.swap(i, current_min);
-        i += 1;
-    }
-}
-
-/// Efficient sorting against large sets. Requires `O(n)` aux. space.
-///
-/// This divide-and-conquer sorting algorithm, while inefficient with memory use, performs
-/// `O(n log n)` in average, worst and best case scenarios even against large sets of data.
-pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
-    fn divide<A: Ord + Clone>(data: &[A]) -> Vec<A> {
-        match data.len() {
-            0 => vec![],
-            1 => vec![data[0].clone()],
-            size => {
-                let middle = size / 2;
-                conquer(divide(data.slice_to(middle)), divide(data.slice_from(middle)))
-            }
-        }
-    }
-
-    fn conquer<A: Ord + Clone>(left: Vec<A>, right: Vec<A>) -> Vec<A> {
-        let mut left_index = 0;
-        let mut right_index = 0;
-
-        let left_size = left.len();
-        let right_size = right.len();
-
-        let mut result = Vec::with_capacity(left_size + right_size);
-
-        while left_index < left_size && right_index < right_size {
-            if left[left_index] < right[right_index] {
-                result.push(left[left_index].clone());
-                left_index += 1;
-            } else {
-                result.push(right[right_index].clone());
-                right_index += 1;
-            }
-        }
-
-        result.push_all(left.slice_from(left_index));
-        result.push_all(right.slice_from(right_index));
-
-        result
-    }
-
-    divide(data)
-}
-
-/// Efficient sorting against large sets.
-///
-/// This divide-and-conquer sorting algorithm performs `O(n log n)` in average and best case scenarios,
-/// but `O(n^2)` in the worst case.
-///
-/// Quicksort is often faster in practice than other `O(n log n)` algorithms due to sequential and
-/// localized memory references that work well with modern CPU caches.
-pub fn quick_sort<A: Ord>(data: &mut [A]) {
-    fn qsort<A: Ord>(data: &mut [A]) {
-        match data.len() {
-            0 | 1 => (),
-            _ => {
-                let pivot = find_pivot(data);
-                let pivot = partition(data, pivot);
-
-                qsort(data.slice_to_mut(pivot));
-                qsort(data.slice_from_mut(pivot + 1));
-            }
-        }
-    }
-
-    /// Partitioning makes the left values of the pivot to be less, and the right values to be greater.
-    fn partition<A: Ord>(data: &mut [A], pivot: usize) -> usize {
-        let (mut next_position, mut index) = (0, 0);
-        let right_index = data.len() - 1;
-
-        data.swap(pivot, right_index);
-
-        while index < right_index {
-            if data[index] <= data[right_index] {
-                data.swap(index, next_position);
-                next_position += 1;
-            }
-
-            index += 1;
-        }
-
-        data.swap(next_position, right_index);
-        next_position
-    }
-
-    /// Finds the median of left, middle and right.
-    fn find_pivot<A: Ord>(data: &[A]) -> usize {
-        let (left, right) = (0, data.len() - 1);
-        let middle = left + (right - left) / 2; // Avoid integer overflow vs (left + right) / 2.
-
-        match (&data[left], &data[middle], &data[right]) {
-            (l, m, r) if l <= m && m <= r => middle,
-            (l, m, r) if l >= m && l <= r => left,
-            _ => right,
-        }
-    }
-
-    qsort(data)
+#[test]
+fn test_remove_duplicates_by_sorting() {
+    let mut v = vec![1u32, 2, 3, 4, 5, 4, 3, 2, 1, 0];
+    remove_duplicates_by_sorting(&mut v);
+    assert_eq!(v, vec![0u32, 1, 2, 3, 4, 5]);
 }

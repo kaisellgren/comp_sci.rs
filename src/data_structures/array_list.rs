@@ -7,12 +7,16 @@ use std::iter::range_step;
 
 static DEFAULT_CAPACITY: usize = 10us;
 
+/// An implementation of a growable and mutable array type, which is allocated on the heap.
+///
+/// Minimum memory requirement is three pointer sized integers, e.g. 24-bytes on 64-bit system.
 pub struct ArrayList<A> {
     length: usize,
     elements: HeapArray<A>,
 }
 
 impl<A> ArrayList<A> {
+    /// Creates a new array list with a default capacity of 10.
     pub fn new() -> ArrayList<A> {
         ArrayList {
             length: 0,
@@ -20,6 +24,7 @@ impl<A> ArrayList<A> {
         }
     }
 
+    /// Creates a new array list with the given capacity.
     pub fn with_capacity(capacity: usize) -> ArrayList<A> {
         ArrayList {
             length: 0,
@@ -33,6 +38,9 @@ impl<A> ArrayList<A> {
         }
     }
 
+    /// Adds an element to the end of the list.
+    ///
+    /// More capacity will be allocated if necessary.
     pub fn push(&mut self, element: A) {
         self.ensure_enough_capacity();
 
@@ -40,6 +48,9 @@ impl<A> ArrayList<A> {
         self.length += 1;
     }
 
+    /// Inserts an element at the given index.
+    ///
+    /// More capacity will be allocated if necessary.
     pub fn insert(&mut self, index: usize, element: A) {
         if index > self.length {
             panic!(
@@ -59,6 +70,7 @@ impl<A> ArrayList<A> {
         self.length += 1;
     }
 
+    /// Removes an element at the given index.
     pub fn remove_at(&mut self, index: usize) {
         if index >= self.length {
             panic!(
@@ -85,10 +97,12 @@ impl<A> ArrayList<A> {
         }
     }
 
+    /// Returns the capacity of this list.
     pub fn capacity(&self) -> usize {
         self.elements.capacity()
     }
 
+    /// Returns the number of elements in the list.
     pub fn length(&self) -> usize {
         self.length
     }
