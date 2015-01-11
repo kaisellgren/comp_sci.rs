@@ -63,6 +63,24 @@ impl<A> HeapArray<A> {
         }
     }
 
+    /// Creates a new array with the given capacity and copies the contents to it.
+    pub fn copy(&self, capacity: usize) -> HeapArray<A> {
+        let mut new_array = HeapArray::with_capacity(capacity);
+        unsafe {
+            copy_nonoverlapping_memory(&mut new_array[0], &self[0], self.capacity);
+        }
+        new_array
+    }
+
+    /// Swaps the elements at given indices.
+    pub fn swap(&mut self, a: usize, b: usize) {
+        unsafe {
+            let ptr_a = self.pointer.offset(a as isize);
+            let ptr_b = self.pointer.offset(b as isize);
+            ptr::swap(ptr_a, ptr_b);
+        }
+    }
+
     pub fn capacity(&self) -> usize {
         self.capacity
     }
