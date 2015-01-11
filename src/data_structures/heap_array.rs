@@ -117,3 +117,29 @@ fn basic_tests() {
 
     assert_eq!(20u8, a[2]);
 }
+
+#[test]
+fn copy_test() {
+    let mut a = HeapArray::with_capacity(2);
+
+    a[0] = 5u8;
+    a[1] = 10u8;
+
+    let b = a.copy(4);
+
+    assert_eq!(5u8, a[0]);
+    assert_eq!(10u8, a[1]);
+
+    a[0] = 6u8;
+    a[1] = 11u8;
+
+    assert_eq!(5u8, b[0]);
+    assert_eq!(10u8, b[1]);
+    assert_eq!(0u8, b[2]);
+    assert_eq!(0u8, b[3]);
+
+    assert_eq!(6u8, a[0]);
+    assert_eq!(11u8, a[1]);
+
+    assert_eq!(4, b.capacity());
+}
