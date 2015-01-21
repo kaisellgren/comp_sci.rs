@@ -2,3 +2,5 @@
 pub mod heap_array;
 /// An implementation of a growable list type.
 pub mod array_list;
+/// An implementation of a doubly linked list.
+pub mod doubly_linked_list;
