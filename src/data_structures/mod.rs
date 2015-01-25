@@ -4,3 +4,5 @@ pub mod heap_array;
 pub mod array_list;
 /// An implementation of a doubly linked list.
 pub mod doubly_linked_list;
+/// An implementation of a binary heap.
+pub mod binary_heap;
