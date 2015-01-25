@@ -137,6 +137,32 @@ pub fn remove_duplicates_with_dual_pointers<'a, A: PartialEq>(data: &'a mut Vec<
     }
 }
 
+/// Finds the position of the key within the given slice.
+///
+/// This is a O(log n) on average and at worst, O(1) at best.
+/// Note: the given slice must be ordered.
+pub fn binary_search<A: Ord>(data: &[A], key: A) -> usize {
+    fn accumulator<A: Ord>(data: &[A], key: A, offset: usize) -> usize {
+        let middle = data.len() / 2;
+
+        if data[middle] > key {
+            accumulator(data.slice_to(middle), key, offset)
+        } else if data[middle] < key {
+            accumulator(data.slice_from(middle), key, offset + middle)
+        } else {
+            middle + offset
+        }
+    };
+
+    accumulator(data, key, 0)
+}
+
+#[test]
+fn test_binary_search() {
+    let stuff = vec![0u8, 2, 4, 6, 8, 9, 10];
+    assert_eq!(1, binary_search(stuff.as_slice(), 2u8));
+}
+
 #[test]
 fn test_remove_duplicates_with_dual_pointers() {
     let mut v = vec![1u32, 2, 3, 4, 5, 4, 3, 2, 1, 0];
