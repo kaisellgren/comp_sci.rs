@@ -39,12 +39,12 @@
 //! This is usually achieved with a method such as `insert()`, and there is sometimes a `push()`
 //! for inserting at the end of the data structure given it makes sense.
 //!
-//! Data structure | Best case | Average case | Worst case
-//! :------------: | :-------: | :----------: | :--------:
-//! HeapArray[1] | N/A | N/A | N/A
-//! ArrayList[2] | O(1) | O(n - index) | O(n)
+//! Data structure | Best case | Average case | Amortized | Worst case
+//! :------------: | :-------: | :----------: | :-------: | :--------:
+//! HeapArray[1] | N/A | N/A | N/A | N/A
+//! ArrayList[2] | O(1) | O(n) | O(n - index) | O(n)
 //!
-//! [1]: HeapArray is immutable thus this function is not available.
+//! [1]: HeapArray is fixed-size thus this function is not available.
 //!
 //! [2]: ArrayList's insertion performance depends on the index you add an element to.
 //! Adding to the end of the list is `O(1)` while adding to the front is `O(n)`, because all the prior elements would have to be moved forward.
@@ -56,12 +56,12 @@
 //! Deletion is the act of removing an element from the data structure. This is usually achieved with
 //! a method such as `remove()`.
 //!
-//! Data structure | Best case | Average case | Worst case
-//! :------------: | :-------: | :----------: | :--------:
-//! HeapArray[1] | N/A | N/A | N/A
-//! ArrayList[2] | O(1) | O(n - index) | O(n)
+//! Data structure | Best case | Average case | Amortized | Worst case
+//! :------------: | :-------: | :----------: | :-------: | :--------:
+//! HeapArray[1] | N/A | N/A | N/A | N/A
+//! ArrayList[2] | O(1) | O(n) | O(n - index) | O(n)
 //!
-//! [1]: HeapArray is immutable thus this function is not available.
+//! [1]: HeapArray is fixed-size thus this function is not available.
 //!
 //! [2]: ArrayList's deletion performance depends on the index you delete an element from. Deleting from the end of the list is `O(1)` while deleting from the front is `O(n)`, because all the prior elements would have to be moved backward.
 //!
