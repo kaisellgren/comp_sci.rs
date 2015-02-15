@@ -87,6 +87,7 @@ extern crate serialize;
 
 pub mod algorithms;
 pub mod data_structures;
+pub mod programs;
 
 fn assert_sorted<T: Ord>(data: &[T]) {
     let mut index = 1;
