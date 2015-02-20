@@ -3,3 +3,6 @@ language: rust
 rust:
   - 1.0.0-alpha
   - nightly
+  
+notifications:
+  email: false
