@@ -6,3 +6,5 @@ pub mod array_list;
 pub mod doubly_linked_list;
 /// An implementation of a binary heap.
 pub mod binary_heap;
+/// An implementation of a bloom filter.
+pub mod bloom_filter;
