@@ -3,7 +3,7 @@
 /// Selection sort is inefficient against large sets. It requires no additional memory.
 ///
 /// The write performance of `O(n)` is better than that of e.g. insertion sort's `O(n^2)`.
-pub fn selection_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
+pub fn selection_sort<A: Ord>(data: &mut [A]) {
     let (mut i, size) = (0, data.len());
 
     while i < size {

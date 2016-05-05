@@ -17,17 +17,17 @@ pub fn murmur3_32_seed(data: &[u8], seed: u32) -> u32 {
     let length = data.len() as u32;
 
     let n_blocks = length / 4;
-    for i in range(0, n_blocks) {
-        let mut k = get_u32(data.slice_from((i * 4) as usize));
-        k *= C1;
+    for i in 0 .. n_blocks {
+        let mut k = get_u32(&data[(i * 4) as usize..]);
+        k = k.wrapping_mul(C1);
         k = (k << R1) | (k >> (32 - R1));
-        k *= C2;
+        k = k.wrapping_mul(C2);
 
         hash ^= k;
-        hash = ((hash << R2) | (hash >> (32 - R2))) * M + N;
+        hash = ((hash << R2) | (hash >> (32 - R2))).wrapping_mul(M).wrapping_add(N);
     }
 
-    let tail = data.slice_from((n_blocks * 4) as usize);
+    let tail = &data[(n_blocks * 4) as usize..];
     let remainder = length & 3;
     let mut k1 = 0u32;
 
@@ -42,17 +42,17 @@ pub fn murmur3_32_seed(data: &[u8], seed: u32) -> u32 {
     if remainder >= 1 {
         k1 ^= tail[0] as u32;
 
-        k1 *= C1;
+        k1 = k1.wrapping_mul(C1);
         k1 = (k1 << R1) | (k1 >> (32 - R1));
-        k1 *= C2;
+        k1 = k1.wrapping_mul(C2);
         hash ^= k1;
     }
 
     hash ^= length;
     hash ^= hash >> 16;
-    hash *= 0x85ebca6b;
+    hash = hash.wrapping_mul(0x85ebca6b);
     hash ^= hash >> 13;
-    hash *= 0xc2b2ae35;
+    hash = hash.wrapping_mul(0xc2b2ae35);
     hash ^= hash >> 16;
 
     hash

@@ -1,3 +1,5 @@
+use std::thread::spawn;
+
 /// A simple program that produces a deadlock.
 #[allow(unused_must_use)]
 pub fn produce_deadlock() {
@@ -7,7 +9,7 @@ pub fn produce_deadlock() {
     let (tx1, rx1) = channel();
     let (tx2, rx2) = channel();
 
-    Thread::spawn(move ||{
+    spawn(move ||{
         rx1.recv();
         tx2.send(());
     });

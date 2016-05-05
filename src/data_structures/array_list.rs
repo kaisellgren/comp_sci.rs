@@ -1,11 +1,12 @@
 use data_structures::heap_array::HeapArray;
-use core::raw::Slice as RawSlice;
+use std::slice::from_raw_parts;
+use std::slice::from_raw_parts_mut;
 use std::ops::{Index, IndexMut};
 use std::mem;
 use std::cmp::max;
-use std::iter::range_step;
+use std::convert::AsRef;
 
-static DEFAULT_CAPACITY: usize = 10us;
+static DEFAULT_CAPACITY: usize = 10usize;
 
 /// An implementation of a growable and mutable array type, which is allocated on the heap.
 ///
@@ -62,7 +63,7 @@ impl<A> ArrayList<A> {
 
         self.ensure_enough_capacity();
 
-        for i in range(index, self.length) {
+        for i in index .. self.length {
             self.elements.swap(self.length - i, self.length - i - 1);
         }
 
@@ -80,7 +81,7 @@ impl<A> ArrayList<A> {
             );
         }
 
-        for i in range(index, self.length - 1) {
+        for i in index .. self.length - 1 {
             self.elements.swap(i, i + 1);
         }
 
@@ -88,12 +89,9 @@ impl<A> ArrayList<A> {
     }
 
     #[inline]
-    pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [A] {
+    pub fn as_mut_slice(&mut self) -> &mut [A] {
         unsafe {
-            mem::transmute(RawSlice {
-                data: &self.elements[0],
-                len: self.length,
-            })
+            from_raw_parts_mut(&mut self.elements[0], self.length)
         }
     }
 
@@ -108,14 +106,18 @@ impl<A> ArrayList<A> {
     }
 }
 
-impl<A> AsSlice<A> for ArrayList<A> {
-    #[inline]
-    fn as_slice<'a>(&'a self) -> &'a [A] {
+impl<A> AsRef<[A]> for ArrayList<A> {
+    fn as_ref(&self) -> &[A] {
         unsafe {
-            mem::transmute(RawSlice {
-                data: &self.elements[0],
-                len: self.length,
-            })
+            from_raw_parts(&self.elements[0], self.length)
+        }
+    }
+}
+
+impl<A> AsMut<[A]> for ArrayList<A> {
+    fn as_mut(&mut self) -> &mut [A] {
+        unsafe {
+            from_raw_parts_mut(&mut self.elements[0], self.length)
         }
     }
 }
@@ -123,18 +125,14 @@ impl<A> AsSlice<A> for ArrayList<A> {
 impl<A> Index<usize> for ArrayList<A> {
     type Output = A;
 
-    #[inline]
-    fn index<'a>(&'a self, index: &usize) -> &'a A {
-        &self.as_slice()[*index]
+    fn index(&self, index: usize) -> &A {
+        &self.as_ref()[index]
     }
 }
 
 impl<A> IndexMut<usize> for ArrayList<A> {
-    type Output = A;
-
-    #[inline]
-    fn index_mut<'a>(&'a mut self, index: &usize) -> &'a mut A {
-        &mut self.as_mut_slice()[*index]
+    fn index_mut(&mut self, index: usize) -> &mut A {
+        &mut self.as_mut()[index]
     }
 }
 
@@ -146,16 +144,16 @@ mod tests {
     fn basic_tests() {
         let mut a = ArrayList::with_capacity(2);
 
-        assert_eq!(2us, a.capacity());
+        assert_eq!(2usize, a.capacity());
 
         a.push(0u8);
         a.push(1u8);
 
-        assert_eq!(2us, a.capacity());
+        assert_eq!(2usize, a.capacity());
 
         a.push(2u8);
 
-        assert_eq!(4us, a.capacity());
+        assert_eq!(4usize, a.capacity());
     }
 
     #[test]
@@ -170,11 +168,11 @@ mod tests {
 
         a.remove_at(2);
 
-        assert_eq!([1u8, 2u8, 4u8, 5u8], a.as_slice());
+        assert_eq!([1u8, 2u8, 4u8, 5u8], a.as_ref());
 
         a.remove_at(3);
 
-        assert_eq!([1u8, 2u8, 4u8], a.as_slice());
+        assert_eq!([1u8, 2u8, 4u8], a.as_ref());
     }
 
     #[test]
@@ -191,28 +189,28 @@ mod tests {
 
         assert_eq!(5u8, a[1]);
 
-        assert_eq!(5us, a.capacity());
-        assert_eq!(2us, a.length());
+        assert_eq!(5usize, a.capacity());
+        assert_eq!(2usize, a.length());
 
         a.insert(2, 1u8);
 
-        assert_eq!(5us, a.capacity());
-        assert_eq!(3us, a.length());
+        assert_eq!(5usize, a.capacity());
+        assert_eq!(3usize, a.length());
 
         a.insert(3, 2u8);
 
-        assert_eq!([15u8, 5u8, 1u8, 2u8], a.as_slice());
+        assert_eq!([15u8, 5u8, 1u8, 2u8], a.as_ref());
     }
 
     #[test]
-    #[should_fail]
+    #[should_panic]
     fn insert_out_of_bounds() {
         let mut a = ArrayList::with_capacity(2);
         a.insert(1, 0u8);
     }
 
     #[test]
-    #[should_fail]
+    #[should_panic]
     fn remove_at_out_of_bounds() {
         let mut a: ArrayList<u8> = ArrayList::with_capacity(2);
         a.remove_at(0);

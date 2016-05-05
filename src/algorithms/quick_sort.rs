@@ -13,8 +13,8 @@ pub fn quick_sort<A: Ord>(data: &mut [A]) {
                 let pivot = find_pivot(data);
                 let pivot = partition(data, pivot);
 
-                qsort(data.slice_to_mut(pivot));
-                qsort(data.slice_from_mut(pivot + 1));
+                qsort(&mut data[..pivot]);
+                qsort(&mut data[pivot + 1..]);
             }
         }
     }

@@ -75,15 +75,19 @@
 //! ArrayList | O(n)
 
 #![doc(html_root_url="https://kaisellgren.github.io/doc")]
-#![allow(unstable)]
 #![allow(unused_imports)]
 #![allow(dead_code)]
+#![feature(alloc)]
+#![feature(test)]
+#![feature(heap_api)]
+#![feature(oom)]
 
 extern crate rand;
 extern crate test;
 extern crate core;
 extern crate alloc;
-extern crate serialize;
+extern crate rustc_serialize;
+extern crate bit_set;
 
 pub mod algorithms;
 pub mod data_structures;
@@ -147,9 +151,9 @@ pub fn binary_search<A: Ord>(data: &[A], key: A) -> usize {
         let middle = data.len() / 2;
 
         if data[middle] > key {
-            accumulator(data.slice_to(middle), key, offset)
+            accumulator(&data[..middle], key, offset)
         } else if data[middle] < key {
-            accumulator(data.slice_from(middle), key, offset + middle)
+            accumulator(&data[middle..], key, offset + middle)
         } else {
             middle + offset
         }

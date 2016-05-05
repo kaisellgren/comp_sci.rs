@@ -9,7 +9,7 @@ pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
             1 => vec![data[0].clone()],
             size => {
                 let middle = size / 2;
-                conquer(divide(data.slice_to(middle)), divide(data.slice_from(middle)))
+                conquer(divide(&data[..middle]), divide(&data[middle..]))
             }
         }
     }
@@ -33,8 +33,8 @@ pub fn merge_sort<A: Ord + Clone>(data: &[A]) -> Vec<A> {
             }
         }
 
-        result.push_all(left.slice_from(left_index));
-        result.push_all(right.slice_from(right_index));
+        result.extend_from_slice(&left[left_index..]);
+        result.extend_from_slice(&right[right_index..]);
 
         result
     }

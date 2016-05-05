@@ -105,7 +105,7 @@ mod tests {
         b.iter(|| {
             let mut bh = BinaryHeap::new();
 
-            for i in range(0u32, 1_000) {
+            for i in 0u32 .. 1_001 {
                 bh.push(i);
             }
         })

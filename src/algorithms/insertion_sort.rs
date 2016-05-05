@@ -6,11 +6,11 @@
 /// than `k` places away from its sorted position).
 ///
 /// Insertion sort can also sort sets as it receives them.
-pub fn insertion_sort<'a, A: Ord + 'a>(data: &'a mut [A]) {
+pub fn insertion_sort<A: Ord>(data: &mut [A]) {
     match data.len() {
         0 | 1 => (),
         size => {
-            for i in range(1, size) {
+            for i in 1 .. size {
                 let mut x = i;
                 while x > 0 && &data[x - 1] > &data[x] {
                     data.swap(x, x - 1);

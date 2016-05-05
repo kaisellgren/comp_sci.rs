@@ -1,19 +1,17 @@
-use core::nonzero::NonZero;
-use core::raw::Slice as RawSlice;
-use alloc::heap::EMPTY;
+use std::slice::from_raw_parts_mut;
+use std::slice::from_raw_parts;
 use alloc::heap::allocate;
 use std::usize;
-use std::ptr::copy_nonoverlapping_memory;
+use std::ptr::copy_nonoverlapping;
 use std::mem;
 use std::ptr;
-use std::num::Int;
 use std::ops::{Index, IndexMut};
 
 /// An implementation of a fixed-size mutable array, which is allocated on the heap.
 ///
 /// Minimum memory requirement is two pointer sized integers, e.g. 16-bytes on 64-bit system.
 pub struct HeapArray<A> {
-    pointer: NonZero<*mut A>,
+    pointer: *mut A,
     capacity: usize,
 }
 
@@ -27,42 +25,33 @@ impl<A> HeapArray<A> {
 
         if a_size == 0 {
             HeapArray {
-                pointer: unsafe {
-                    NonZero::new(EMPTY as *mut A)
-                },
+                pointer: 0 as *mut A,
                 capacity: usize::MAX, // Empty sized A's yield infinite capacity.
             }
         } else if capacity == 0 {
             HeapArray {
-                pointer: unsafe {
-                    NonZero::new(EMPTY as *mut A)
-                },
+                pointer: 0 as *mut A,
                 capacity: 0,
             }
         } else {
             let bytes = capacity.checked_mul(a_size).expect("capacity overflow");
             let pointer = unsafe {
-                allocate(bytes, mem::min_align_of::<A>())
+                allocate(bytes, mem::align_of::<A>())
             };
 
             if pointer.is_null() { ::alloc::oom() }
 
             HeapArray {
-                pointer: unsafe {
-                    NonZero::new(pointer as *mut A)
-                },
+                pointer: pointer as *mut A,
                 capacity: capacity,
             }
         }
     }
 
     #[inline]
-    pub fn as_mut_slice<'a>(&'a mut self) -> &'a mut [A] {
+    pub fn as_mut_slice(&mut self) -> &mut [A] {
         unsafe {
-            mem::transmute(RawSlice {
-                data: *self.pointer,
-                len: self.capacity,
-            })
+            from_raw_parts_mut(self.pointer, self.capacity)
         }
     }
 
@@ -70,7 +59,7 @@ impl<A> HeapArray<A> {
     pub fn copy(&self, capacity: usize) -> HeapArray<A> {
         let mut new_array = HeapArray::with_capacity(capacity);
         unsafe {
-            copy_nonoverlapping_memory(&mut new_array[0], &self[0], self.capacity);
+            copy_nonoverlapping(&self[0], &mut new_array[0], self.capacity);
         }
         new_array
     }
@@ -90,14 +79,11 @@ impl<A> HeapArray<A> {
     }
 }
 
-impl<A> AsSlice<A> for HeapArray<A> {
+impl<A> AsRef<[A]> for HeapArray<A> {
     #[inline]
-    fn as_slice<'a>(&'a self) -> &'a [A] {
+    fn as_ref(&self) -> &[A] {
         unsafe {
-            mem::transmute(RawSlice {
-                data: *self.pointer,
-                len: self.capacity,
-            })
+            from_raw_parts(self.pointer, self.capacity)
         }
     }
 }
@@ -106,17 +92,15 @@ impl<A> Index<usize> for HeapArray<A> {
     type Output = A;
 
     #[inline]
-    fn index<'a>(&'a self, index: &usize) -> &'a A {
-        &self.as_slice()[*index]
+    fn index(&self, index: usize) -> &A {
+        &self.as_ref()[index]
     }
 }
 
 impl<A> IndexMut<usize> for HeapArray<A> {
-    type Output = A;
-
     #[inline]
-    fn index_mut<'a>(&'a mut self, index: &usize) -> &'a mut A {
-        &mut self.as_mut_slice()[*index]
+    fn index_mut(&mut self, index: usize) -> &mut A {
+        &mut self.as_mut_slice()[index]
     }
 }
 

@@ -1,10 +1,9 @@
-use std::collections::BitvSet;
-use std::num::Float;
+use bit_set::BitSet;
 use std::cmp::max;
 use algorithms::murmur::murmur3_32_seed;
 
 pub struct BloomFilter {
-    set: BitvSet,
+    set: BitSet,
     expected_length: u32,
     hash_count: u32,
 }
@@ -16,12 +15,12 @@ impl BloomFilter {
     /// expect to add. The latter is used to choose some optimal internal values to minimize the false-positive
     /// rate (which can be estimated with expected_false_positive_rate()).
     pub fn with_capacity(capacity: u32, expected_length: u32) -> BloomFilter {
-        let hash_count = ((capacity / expected_length) as f32 * 2.0.ln()).ceil() as u32;
+        let hash_count = (capacity / expected_length) as f32 * 2.0f32.ln();
 
         BloomFilter {
-            set: BitvSet::with_capacity(capacity as usize),
+            set: BitSet::with_capacity(capacity as usize),
             expected_length: expected_length,
-            hash_count: max(1, hash_count),
+            hash_count: max(1, hash_count.ceil() as u32),
         }
     }
 
@@ -34,7 +33,7 @@ impl BloomFilter {
 
     /// Pushes a new value to the bloom filter.
     pub fn push(&mut self, data: &[u8]) {
-        let mut hashes = range(0, self.hash_count).map(|i| murmur3_32_seed(data, i) as usize);
+        let hashes = (0 .. self.hash_count + 1).map(|i| murmur3_32_seed(data, i) as usize);
 
         for hash in hashes {
             self.set.insert(hash);
@@ -48,9 +47,9 @@ impl BloomFilter {
 
     /// Returns false if the data was definitely not added to the bloom filter, and true if it may have been.
     pub fn contains(&self, data: &[u8]) -> bool {
-        let hashes = range(0, self.hash_count).map(|i| murmur3_32_seed(data, i) as usize);
+        let mut hashes = (0 .. self.hash_count + 1).map(|i| murmur3_32_seed(data, i) as usize);
 
-        hashes.all(|hash| self.set.contains(&hash))
+        hashes.all(|h| self.set.contains(h))
     }
 }
 
