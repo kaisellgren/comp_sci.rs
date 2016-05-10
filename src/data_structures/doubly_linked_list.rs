@@ -1,15 +1,167 @@
-use std::mem;
+use std::mem::align_of;
+use std::mem::size_of;
+use std::mem::transmute;
 use std::ptr;
+use alloc::heap::deallocate;
+use alloc::heap::allocate;
+
+struct Node<A> {
+    prev: *mut Node<A>,
+    next: *mut Node<A>,
+    value: A
+}
+
+// push_back, push_front, iter, clear
+pub struct DoublyLinkedList<A> {
+    first: *mut Node<A>,
+    last: *mut Node<A>,
+    length: usize
+}
+
+fn convert<'a, A>(value: *mut Node<A>) -> Option<&'a A> {
+    unsafe {
+        value.as_ref().map(|node| &node.value)
+    }
+}
+
+impl<A> DoublyLinkedList<A> {
+    pub fn new() -> DoublyLinkedList<A> {
+        DoublyLinkedList {
+            first: ptr::null_mut(),
+            last: ptr::null_mut(),
+            length: 0
+        }
+    }
+
+    pub fn clear(&mut self) {
+        let mut next = self.first;
+        unsafe {
+            while let Some(node) = next.as_ref() {
+                let prev = next;
+                next = node.next;
+                let bytes = size_of::<A>() + size_of::<usize>() * 2;
+                println!("to dealloc: {:?}", bytes);
+                deallocate(prev as *mut u8, bytes, align_of::<A>());
+            }
+        }
+// TODO: CALL DROP()? transmute back to Box?
+        self.first = ptr::null_mut();
+        self.last = ptr::null_mut();
+        self.length = 0;
+    }
+
+    pub fn append(&mut self, value: A) {
+        let previous_last = self.last;
+
+        
+
+        let mut node = Box::new(Node {
+            prev: previous_last,
+            next: ptr::null_mut(),
+            value: value
+        });
+
+        if self.is_empty() {
+            println!("eh");
+            self.first = &mut *node;
+        }
+
+        self.last = &mut *node;
+        self.length += 1;
+
+        unsafe {
+            if let Some(prev) = previous_last.as_mut() {
+                prev.next = self.last;
+            }
+        }
+    }
+
+    pub fn first(&self) -> Option<&A> {
+        convert(self.first)
+    }
+
+    pub fn last(&self) -> Option<&A> {
+        convert(self.last)
+    }
+
+    pub fn len(&self) -> usize {
+        self.length
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.length == 0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::Node;
+    use std::mem;
+
+    fn node_value<'a, A>(pointer: *mut Node<A>) -> &'a A {
+        unsafe {
+            &pointer.as_ref().unwrap().value
+        }
+    }
+
+    #[test]
+    fn basic() {
+        let mut list: DoublyLinkedList<u8> = DoublyLinkedList::new();
+
+        assert!(list.first.is_null());
+        assert!(list.last.is_null());
+
+        list.append(5);
+
+        assert_eq!(list.len(), 1);
+        assert_eq!(*node_value(list.first), 5);
+        assert_eq!(*node_value(list.last), 5);
+        println!("first: {:?}, last: {:?}", list.first, list.last);
+
+        list.append(10);
+
+        println!("first: {:?}, last: {:?}", list.first, list.last);
+        assert_eq!(list.len(), 2);
+        assert_eq!(*node_value(list.first), 5);
+        assert_eq!(*node_value(list.last), 10);
+
+        list.append(15);
+
+        assert_eq!(list.len(), 3);
+        assert_eq!(*node_value(list.first), 5);
+        assert_eq!(*node_value(list.last), 15);
+
+        //list.clear();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
-  DoublyLinkedList is not idiomatic to write in Rust, because of the fact that there can be two
-  parties owning the same data (when the first and the last elements of the list are the same).
-  For this reason, we use raw mutable pointers for ´last´ and ´previous´, instead of boxed pointers.
-
-  We still use boxed pointers for ´first´ and ´next´ to ensure safe memory handling. Rc pointers
-  could be used as well, but they entail an unnecessary performance penalty we like to avoid.
-*/
-
 /// An implementation of a doubly linked list.
 pub struct DoublyLinkedList<A> {
     first: Option<Box<Node<A>>>,
@@ -217,3 +369,4 @@ mod tests {
         for _ in list.iter() {}
     }
 }
+*/
